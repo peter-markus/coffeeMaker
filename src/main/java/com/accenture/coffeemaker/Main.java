@@ -30,7 +30,7 @@ public class Main {
 
     public static void main(String[] args) {
         printMenu();
-        CoffeeMaker coffeeMaker = new CoffeeMaker();
+        CoffeeMaker coffeeMaker = new CoffeeMakerFactory().create();
 
         while (true) {
             int input = readInput();

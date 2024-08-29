@@ -1,75 +1,80 @@
 package com.accenture.coffeemaker;
 
-import org.easymock.Mock;
-import org.easymock.TestSubject;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import static org.easymock.EasyMock.*;
-import static org.easymock.EasyMockSupport.injectMocks;
+import static org.easymock.EasyMock.expectLastCall;
 
 public class CoffeeMakerTest {
 
-    @Mock
+    public static final String BEAN_TRAY_HAS_BEEN_REFILLED = "Bean tray has been refilled!";
+    public static final String BEAN_TRAY_IS_EMPTY_MESSAGE = "Bean tray is empty, please fill it up!";
+    public static final String SERVER_TRAY_IS_EMPTY_MESSAGE = "Server tray is empty, please place a cup on it!";
+    public static final String COFFEE_IS_READY = "Coffee is ready!";
+    private static final String ERROR_MESSAGE_PREFIX = "Error: ";
+
+    IMocksControl control;
     private BeanTray beanTray;
-    @Mock
     private ServeTray serveTray;
-    @Mock
     private Display display;
 
-    @TestSubject
     private CoffeeMaker underTest;
 
     @BeforeMethod
-    public void beforeClass() {
-        underTest = new CoffeeMaker();
-        injectMocks(this);
+    public void beforeMethod() {
+        control = EasyMock.createStrictControl();
+        beanTray = control.createMock(BeanTray.class);
+        serveTray = control.createMock(ServeTray.class);
+        display = control.createMock(Display.class);
+        underTest = new CoffeeMaker(beanTray, serveTray, display);
     }
 
     @Test
     public void testPlaceCupOnTrayShouldCallServeTray() {
         serveTray.placeCup();
-        replay(serveTray);
+        control.replay();
 
         underTest.placeCupOnTray();
 
-        verify(serveTray);
+        control.verify();
     }
 
     @Test
     public void testRefillBeanTrayShouldCallBeanTrayAndDisplayCollaborator() {
         beanTray.refill();
-        display.displayMessage("Bean tray has been refilled!");
-        replay(beanTray, display);
+        display.displayMessage(BEAN_TRAY_HAS_BEEN_REFILLED);
+        control.replay();
 
         underTest.refillBeanTray();
 
-        verify(beanTray, display);
+        control.verify();
     }
 
     @Test()
     public void testMakeCoffeeShouldDisplayErrorMessageWhenBeanTrayAvailabilityThrowsException() throws CoffeeMakerException {
         beanTray.availability();
-        expectLastCall().andThrow(new CoffeeMakerException("Bean tray is empty, please fill it up!"));
-        display.displayMessage("Error: Bean tray is empty, please fill it up!");
-        replay(beanTray, display);
+        expectLastCall().andThrow(new CoffeeMakerException(BEAN_TRAY_IS_EMPTY_MESSAGE));
+        display.displayMessage(ERROR_MESSAGE_PREFIX + BEAN_TRAY_IS_EMPTY_MESSAGE);
+        control.replay();
 
         underTest.makeCoffee();
 
-        verify(beanTray, display);
+        control.verify();
     }
 
     @Test()
     public void testMakeCoffeeShouldDisplayErrorMessageWhenServeTrayAvailabilityThrowsException() throws CoffeeMakerException {
         beanTray.availability();
         serveTray.availability();
-        expectLastCall().andThrow(new CoffeeMakerException("Server tray is empty, please place a cup on it!"));
-        display.displayMessage("Error: Server tray is empty, please place a cup on it!");
-        replay(beanTray, serveTray, display);
+        expectLastCall().andThrow(new CoffeeMakerException(SERVER_TRAY_IS_EMPTY_MESSAGE));
+        display.displayMessage(ERROR_MESSAGE_PREFIX + SERVER_TRAY_IS_EMPTY_MESSAGE);
+        control.replay();
 
         underTest.makeCoffee();
 
-        verify(beanTray, serveTray, display);
+        control.verify();
     }
 
     @Test
@@ -78,13 +83,13 @@ public class CoffeeMakerTest {
         serveTray.availability();
         display.availability();
         beanTray.useBeans();
-        display.displayMessage("Coffee is ready!");
+        display.displayMessage(COFFEE_IS_READY);
         serveTray.removeCup();
-        replay(beanTray, serveTray, display);
+        control.replay();
 
         underTest.makeCoffee();
 
-        verify(beanTray, serveTray, display);
+        control.verify();
     }
 
 }

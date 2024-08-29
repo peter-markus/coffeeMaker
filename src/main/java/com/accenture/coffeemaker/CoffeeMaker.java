@@ -2,9 +2,15 @@ package com.accenture.coffeemaker;
 
 public class CoffeeMaker {
 
-    private BeanTray beanTray = new BeanTray();
-    private ServeTray serveTray = new ServeTray();
-    private Display display = new Display();
+    private final BeanTray beanTray;
+    private final ServeTray serveTray;
+    private final Display display;
+
+    public CoffeeMaker(final BeanTray beanTray, final ServeTray serveTray, final Display display) {
+        this.beanTray = beanTray;
+        this.serveTray = serveTray;
+        this.display = display;
+    }
 
     public void makeCoffee() {
         try {
