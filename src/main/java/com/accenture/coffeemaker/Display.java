@@ -6,6 +6,8 @@ public class Display {
     }
 
     public void displayMessage(final String message) {
-        System.out.println("LCD display: " + message);
+        if (!message.isEmpty()) {
+            System.out.println("LCD display: " + message);
+        }
     }
 }
